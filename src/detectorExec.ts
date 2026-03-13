@@ -5,7 +5,10 @@ import type {
   VueDevtoolsMessageDetail,
 } from './types/message';
 import { unpackVueDevtoolsMessage } from './utils/index';
-import { crack } from './crack';
+import { crack, crackAllVueApps } from './crack';
+
+let observerStarted = false;
+let mutationTimer: ReturnType<typeof setTimeout> | undefined;
 
 // Receive the message of vue devtools, crack and replay it.
 function listenVueDevtoolsMessage() {
@@ -32,6 +35,28 @@ function listenVueDevtoolsMessage() {
   };
 
   window.addEventListener('message', messageHandler);
+}
+
+function startVueTreeObserver() {
+  if (observerStarted || !(document instanceof Document)) return;
+  observerStarted = true;
+
+  const observer = new MutationObserver(() => {
+    if (mutationTimer) {
+      clearTimeout(mutationTimer);
+    }
+
+    mutationTimer = setTimeout(() => {
+      if (window.__VUE_DEVTOOLS_GLOBAL_HOOK__) {
+        crackAllVueApps();
+      }
+    }, 150);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
 }
 
 function detect(
@@ -66,4 +91,5 @@ function detect(
 // inject the hook
 if (document instanceof Document) {
   listenVueDevtoolsMessage();
+  startVueTreeObserver();
 }

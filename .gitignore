@@ -2,3 +2,6 @@ node_modules
 dist
 dist-zip
 yarn-error.log
+
+.idea
+.claude
