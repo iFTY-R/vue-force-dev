@@ -14,7 +14,11 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["detectorExec.js"],
+      "resources": [
+        "detectorExec.js",
+        "assets/detectorExec*.js",
+        "assets/detectorExec*.css"
+      ],
       "matches": ["<all_urls>"],
       "extension_ids": []
     }
